@@ -11,7 +11,7 @@ on:
 
 permissions:
   contents: read
-  id-token: write  # IMPORTANT: allows GitHub to fetch OIDC token
+  id-token: write
 
 jobs:
   build:
@@ -42,7 +42,6 @@ jobs:
     needs: build
     environment:
       name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
       - name: Download artifact from build job
@@ -51,12 +50,12 @@ jobs:
           name: python-app
           path: .
 
-      - name: Azure Login via OIDC
+      - name: Azure Login with hardcoded service principal
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: "AZUREAPPSERVICE_CLIENTID_D2D77786DEEC47CDA13848FBCF4017FA"
+          tenant-id: "AZUREAPPSERVICE_TENANTID_ABC29AC593F74CE0886B66F9D3024169"
+          subscription-id: "AZUREAPPSERVICE_SUBSCRIPTIONID_5D8BB802C6764E4EB1EBE31D44F06C40"
           allow-no-subscriptions: true
 
       - name: Deploy to Azure Web App
