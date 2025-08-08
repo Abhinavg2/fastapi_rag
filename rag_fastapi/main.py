@@ -1,8 +1,8 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
-from utils.file_handler import save_uploaded_file
-from utils.chunker import chunk_documents
-from utils.embedder import embed_to_search
-from utils.responder import answer_query
+from .utils.file_handler import save_uploaded_file
+from .utils.chunker import chunk_documents
+from .utils.embedder import embed_to_search
+from .utils.responder import answer_query
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -31,3 +31,4 @@ class Query(BaseModel):
 def respond(query: Query):
     answer = answer_query(query.question)
     return {"answer": answer}
+
