@@ -1,3 +1,62 @@
+# name: Build and deploy Python app to Azure Web App - rag-fastapi-app
+
+# env:
+#   AZURE_WEBAPP_NAME: rag-fastapi-app
+#   PYTHON_VERSION: '3.11'
+
+# on:
+#   push:
+#     branches: [ "main" ]
+#   workflow_dispatch:
+
+# permissions:
+#   contents: read
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - uses: actions/checkout@v4
+
+#       - name: Set up Python version
+#         uses: actions/setup-python@v5
+#         with:
+#           python-version: ${{ env.PYTHON_VERSION }}
+#           cache: 'pip'
+
+#       - name: Install dependencies
+#         run: pip install -r requirements.txt
+
+#       - name: Upload artifact for deployment jobs
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: python-app
+#           path: |
+#             .
+#             !venv/
+
+#   deploy:
+#     runs-on: ubuntu-latest
+#     needs: build
+#     environment:
+#       name: 'Production'
+
+#     steps:
+#       - name: Download artifact from build job
+#         uses: actions/download-artifact@v4
+#         with:
+#           name: python-app
+#           path: .
+
+#       - name: Deploy to Azure Web App using publish profile
+#         uses: azure/webapps-deploy@v3
+#         with:
+#           app-name: ${{ env.AZURE_WEBAPP_NAME }}
+#           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+#           slot-name: 'Production'  # Optional, remove if you don't use deployment slots
+
+
 name: Build and deploy Python app to Azure Web App - rag-fastapi-app
 
 env:
@@ -17,9 +76,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      - name: Set up Python version
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
@@ -28,13 +88,21 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Verify files before upload
+        run: |
+          echo "Listing root files and folders:"
+          ls -l
+          echo "Listing rag_fastapi folder contents:"
+          ls -l rag_fastapi
+
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
         with:
           name: python-app
           path: |
-            .
-            !venv/
+            rag_fastapi
+            requirements.txt
+            README.md
 
   deploy:
     runs-on: ubuntu-latest
@@ -49,9 +117,17 @@ jobs:
           name: python-app
           path: .
 
+      - name: Verify files after download
+        run: |
+          echo "Listing files after download:"
+          ls -l
+          echo "Listing rag_fastapi folder contents:"
+          ls -l rag_fastapi
+
       - name: Deploy to Azure Web App using publish profile
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          slot-name: 'Production'  # Optional, remove if you don't use deployment slots
+          slot-name: 'Production'  # Optional, remove if not using slots
+
