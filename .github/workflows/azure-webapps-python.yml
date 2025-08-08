@@ -11,7 +11,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   build:
@@ -50,17 +49,9 @@ jobs:
           name: python-app
           path: .
 
-      - name: Azure Login with hardcoded service principal
-        uses: azure/login@v2
-        with:
-          client-id: "AZUREAPPSERVICE_CLIENTID_D2D77786DEEC47CDA13848FBCF4017FA"
-          tenant-id: "AZUREAPPSERVICE_TENANTID_ABC29AC593F74CE0886B66F9D3024169"
-          subscription-id: "AZUREAPPSERVICE_SUBSCRIPTIONID_5D8BB802C6764E4EB1EBE31D44F06C40"
-          allow-no-subscriptions: true
-
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
+      - name: Deploy to Azure Web App using publish profile
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          slot-name: 'Production'
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          slot-name: 'Production'  # Optional, remove if you don't use deployment slots
